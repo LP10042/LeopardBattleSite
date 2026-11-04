@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leopard Battle</title>
+  <meta name="description" content="Leopard Battle — intense Unity tank + drone multiplayer warfare. Dominate the ground. Control the sky." />
+  <style>
+    :root {
+      --bg: #0a0c0b;
+      --bg-elevated: #121512;
+      --bg-card: #161a17;
+      --border: #2a2f2b;
+      --text: #e8e6df;
+      --text-muted: #9a9a8f;
+      --accent: #c9a84c;
+      --accent-dim: #8a7340;
+      --olive: #4a6b52;
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    .display {
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+    .label {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .muted { color: var(--text-muted); }
+
+    .container {
+      width: min(100% - 3rem, var(--max));
+      margin-inline: auto;
+    }
+    .section {
+      padding: 5.5rem 0;
+    }
+    .section-header {
+      margin-bottom: 2.75rem;
+    }
+    .section-header h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      margin-top: 0.6rem;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 100;
+      background: rgba(10, 12, 11, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.25s;
+    }
+    nav.scrolled { border-bottom-color: var(--border); }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      width: min(100% - 3rem, var(--max));
+      margin-inline: auto;
+    }
+    .logo {
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      font-size: 1.05rem;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #0a0c0b;
+      padding: 0.45rem 1rem;
+      border-radius: 4px;
+      font-weight: 650;
+      font-size: 0.85rem;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 6rem;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: url("hero-bg.png") center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,12,11,0.97) 0%, rgba(10,12,11,0.55) 45%, rgba(10,12,11,0.35) 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      width: min(100% - 3rem, var(--max));
+      margin-inline: auto;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.4rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .hero-tag::before {
+      content: "";
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.8rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin-bottom: 1.1rem;
+    }
+    .hero h1 .line2 { color: var(--accent); }
+    .hero-lead {
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      max-width: 34rem;
+      color: var(--text-muted);
+      margin-bottom: 2.4rem;
+      line-height: 1.5;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 3.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 4px;
+      font-weight: 650;
+      font-size: 0.95rem;
+      transition: 0.15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0c0b;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+    }
+    .btn-ghost:hover { border-color: var(--text-muted); }
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat strong {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+    .stat span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* OVERVIEW */
+    .overview {
+      background: var(--bg-elevated);
+      border-block: 1px solid var(--border);
+    }
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .overview-grid { grid-template-columns: 1fr; }
+    }
+    .overview-text p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-top: 1.2rem;
+      max-width: 36rem;
+    }
+    .overview-text .emphasis {
+      color: var(--text);
+      font-weight: 550;
+    }
+
+    /* COMBINED ARMS */
+    .arms-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 800px) {
+      .arms-grid { grid-template-columns: 1fr; }
+    }
+    .arm-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .arm-card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+    }
+    .arm-body {
+      padding: 1.75rem 1.6rem 2rem;
+      flex: 1;
+    }
+    .arm-body .label { margin-bottom: 0.6rem; }
+    .arm-body h3 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+    .arm-body p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+    .arm-list {
+      margin-top: 1.25rem;
+      display: grid;
+      gap: 0.55rem;
+    }
+    .arm-list li {
+      list-style: none;
+      display: flex;
+      gap: 0.7rem;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .arm-list li::before {
+      content: "▸";
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ========== SYSTEMS WITH IMAGES ========== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+    }
+    @media (max-width: 980px) {
+      .features-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+    }
+
+    .feature {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature:hover {
+      border-color: var(--accent-dim);
+      transform: translateY(-2px);
+    }
+
+    .feature-img {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+    .feature-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .feature:hover .feature-img img {
+      transform: scale(1.04);
+    }
+    .feature-img::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(22,26,23,0.85) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .feature-body {
+      padding: 1.35rem 1.35rem 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .feature-num {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      font-weight: 650;
+      margin-bottom: 0.55rem;
+    }
+    .feature h3 {
+      font-size: 1.12rem;
+      font-weight: 650;
+      margin-bottom: 0.55rem;
+      letter-spacing: -0.01em;
+    }
+    .feature p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* MULTIPLAYER */
+    .mp-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .mp-layout { grid-template-columns: 1fr; }
+    }
+    .mp-image {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .mp-image img { width: 100%; height: auto; }
+    .mp-points {
+      display: grid;
+      gap: 1.4rem;
+    }
+    .mp-point {
+      padding: 1.25rem 1.35rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      border-left: 3px solid var(--accent);
+    }
+    .mp-point h4 {
+      font-size: 1.05rem;
+      font-weight: 650;
+      margin-bottom: 0.35rem;
+    }
+    .mp-point p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    /* GALLERY */
+    .showcase {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .showcase-main {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .showcase-main img {
+      width: 100%;
+      height: auto;
+    }
+    .showcase-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 800px) {
+      .showcase-row { grid-template-columns: 1fr; }
+    }
+    .showcase-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .showcase-card img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+    }
+    .showcase-caption {
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+    .showcase-caption strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* TECH */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 800px) {
+      .tech-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .tech-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.2rem;
+      text-align: center;
+    }
+    .tech-item strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+    }
+    .tech-item span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* CLOSING */
+    .closing {
+      text-align: center;
+      padding: 7rem 0 6rem;
+      background: linear-gradient(to bottom, var(--bg), #0e110f);
+      border-top: 1px solid var(--border);
+    }
+    .closing h2 {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .closing p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 32rem;
+      margin: 0 auto 2.2rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.75rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      width: min(100% - 3rem, var(--max));
+      margin-inline: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <div class="logo">LEOPARD <span>BATTLE</span></div>
+      <div class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#arms">Combined Arms</a>
+        <a href="#features">Systems</a>
+        <a href="#multiplayer">Multiplayer</a>
+        <a href="#gallery">Gallery</a>
+      </div>
+      <a href="Leopard%20battle(v1.0).zip" class="nav-cta" download="Leopard battle(v1.0).zip">Download</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-tag">Unity • 3D Armored Warfare</div>
+      <h1 class="display">
+        Dominate the Ground.<br />
+        <span class="line2">Control the Sky.</span>
+      </h1>
+      <p class="hero-lead">
+        Leopard Battle is a realistic multiplayer tank combat experience where every player commands both a modern battle tank and a personal combat drone. Ground firepower meets aerial intelligence.
+      </p>
+      <div class="hero-actions">
+        <a href="Leopard%20battle(v1.0).zip" class="btn btn-primary" download="Leopard battle(v1.0).zip">Download Game (v1.0)</a>
+        <a href="#arms" class="btn btn-ghost">Explore Combined Arms</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <strong>Tank + Drone</strong>
+          <span>Combined Arms</span>
+        </div>
+        <div class="stat">
+          <strong>Real-time</strong>
+          <span>Multiplayer</span>
+        </div>
+        <div class="stat">
+          <strong>Unity</strong>
+          <span>3D Engine</span>
+        </div>
+        <div class="stat">
+          <strong>Desert Base</strong>
+          <span>Primary Map</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <section class="section overview" id="overview">
+    <div class="container overview-grid">
+      <div class="overview-text">
+        <div class="label">Mission Brief</div>
+        <h2 class="display" style="font-size: clamp(1.9rem, 3.2vw, 2.5rem); margin-top: 0.7rem;">
+          This is more than a tank battle.
+        </h2>
+        <p>
+          The battlefield is no longer just about armor. It is about <span class="emphasis">intelligence, strategy, and total battlefield domination</span>. Command a powerful modern battle tank, then rise above the fight with your personal combat drone.
+        </p>
+        <p>
+          Scan terrain, acquire targets, and coordinate precision strikes from the air while your tank delivers devastating ground fire. Every encounter becomes a contest of awareness and tactical execution.
+        </p>
+      </div>
+      <div>
+        <img src="main-menu.png" alt="Leopard Battle main menu" style="border-radius: var(--radius); border: 1px solid var(--border); width: 100%;" />
+      </div>
+    </div>
+  </section>
+
+  <!-- COMBINED ARMS -->
+  <section class="section" id="arms">
+    <div class="container">
+      <div class="section-header">
+        <div class="label">Core Pillar</div>
+        <h2 class="display">Two battlefields. One war.</h2>
+      </div>
+
+      <div class="arms-grid">
+        <article class="arm-card">
+          <img src="firing.jpeg" alt="Tank firing" />
+          <div class="arm-body">
+            <div class="label">Ground Warfare</div>
+            <h3>Your Tank</h3>
+            <p>Drive powerful armored vehicles, maneuver through dangerous terrain, aim your cannon, and unleash devastating firepower against enemy forces.</p>
+            <ul class="arm-list">
+              <li>Responsive tank handling & turret control</li>
+              <li>Shell and missile weapon systems</li>
+              <li>Clear health, cooldown & speed feedback</li>
+              <li>Scoped aiming with range markers</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="arm-card">
+          <img src="night-drone.jpeg" alt="Night operations with drone" />
+          <div class="arm-body">
+            <div class="label">Aerial Warfare</div>
+            <h3>Your Drone</h3>
+            <p>Every multiplayer player commands a personal combat drone. Rise above the battlefield, locate hidden armor, and turn intelligence into decisive strikes.</p>
+            <ul class="arm-list">
+              <li>Aerial reconnaissance & target tracking</li>
+              <li>Precision drone strikes</li>
+              <li>Reveal positions invisible from the ground</li>
+              <li>True combined-arms coordination</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYSTEMS — each card now has an explanatory image -->
+  <section class="section" id="features" style="background: var(--bg-elevated); border-block: 1px solid var(--border);">
+    <div class="container">
+      <div class="section-header">
+        <div class="label">Systems</div>
+        <h2 class="display">Built for clarity and pressure</h2>
+      </div>
+
+      <div class="features-grid">
+        <!-- 01 Combined Arms Loop -->
+        <article class="feature">
+          <div class="feature-img">
+            <img src="drone-swarm.jpeg" alt="Tank and drones on the battlefield" />
+          </div>
+          <div class="feature-body">
+            <div class="feature-num">01</div>
+            <h3>Combined Arms Loop</h3>
+            <p>Switch between tank combat and drone operations seamlessly. Spot with the drone, strike with the tank — or both.</p>
+          </div>
+        </article>
+
+        <!-- 02 Readable Tactical HUD -->
+        <article class="feature">
+          <div class="feature-img">
+            <img src="combat-views.png" alt="In-game HUD and combat views" />
+          </div>
+          <div class="feature-body">
+            <div class="feature-num">02</div>
+            <h3>Readable Tactical HUD</h3>
+            <p>Health, weapon cooldown, speed, remaining tanks, and mini-map stay clear even in the middle of a firefight.</p>
+          </div>
+        </article>
+
+        <!-- 03 Team Multiplayer -->
+        <article class="feature">
+          <div class="feature-img">
+            <img src="multiplayer-lobby.png" alt="Multiplayer lobby and team selection" />
+          </div>
+          <div class="feature-body">
+            <div class="feature-num">03</div>
+            <h3>Team Multiplayer</h3>
+            <p>Blue vs Red matches. Create or join rooms, select your side, and fight for map control on Desert Base.</p>
+          </div>
+        </article>
+
+        <!-- 04 Drone Reconnaissance -->
+        <article class="feature">
+          <div class="feature-img">
+            <img src="night-drone.jpeg" alt="Drone reconnaissance at night" />
+          </div>
+          <div class="feature-body">
+            <div class="feature-num">04</div>
+            <h3>Drone Reconnaissance</h3>
+            <p>Fly your personal drone to locate enemy armor that would otherwise remain hidden behind cover or terrain.</p>
+          </div>
+        </article>
+
+        <!-- 05 Precision Feedback -->
+        <article class="feature">
+          <div class="feature-img">
+            <img src="firing.jpeg" alt="Tank firing with visual impact feedback" />
+          </div>
+          <div class="feature-body">
+            <div class="feature-num">05</div>
+            <h3>Precision Feedback</h3>
+            <p>Hit indicators, destruction states, and cooldown timers give players immediate, trustworthy information.</p>
+          </div>
+        </article>
+
+        <!-- 06 Military Atmosphere -->
+        <article class="feature">
+          <div class="feature-img">
+            <img src="hero-bg.png" alt="Sunset military base atmosphere" />
+          </div>
+          <div class="feature-body">
+            <div class="feature-num">06</div>
+            <h3>Military Atmosphere</h3>
+            <p>Sunset bases, night operations, smoke, and destruction effects support a focused, serious combat tone.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- MULTIPLAYER -->
+  <section class="section" id="multiplayer">
+    <div class="container">
+      <div class="section-header">
+        <div class="label">Online</div>
+        <h2 class="display">Multiplayer warfare</h2>
+      </div>
+      <div class="mp-layout">
+        <div class="mp-image">
+          <img src="multiplayer-lobby.png" alt="Multiplayer lobby" />
+        </div>
+        <div class="mp-points">
+          <div class="mp-point">
+            <h4>Your Tank. Your Drone. Your Battlefield.</h4>
+            <p>Every guest commands both a combat tank and a personal drone, turning each player into a combined-arms operator.</p>
+          </div>
+          <div class="mp-point">
+            <h4>Simple, Clear Lobby</h4>
+            <p>Set player name, room name, choose Blue or Red team, select the map, then join or create a game in seconds.</p>
+          </div>
+          <div class="mp-point">
+            <h4>Desert Base</h4>
+            <p>Open terrain with hangars, containers, and long sightlines designed for both ground engagements and aerial scouting.</p>
+          </div>
+          <div class="mp-point">
+            <h4>Intelligence Advantage</h4>
+            <p>A tank behind a building may escape direct fire — but it cannot hide forever from a drone overhead.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="section" id="gallery" style="background: var(--bg-elevated); border-block: 1px solid var(--border);">
+    <div class="container">
+      <div class="section-header">
+        <div class="label">Visuals</div>
+        <h2 class="display">In the field</h2>
+      </div>
+      <div class="showcase">
+        <div class="showcase-main">
+          <img src="gameplay-composite.png" alt="Gameplay composite — defeat screen and scope view" />
+        </div>
+        <div class="showcase-row">
+          <div class="showcase-card">
+            <img src="combat-views.png" alt="Live combat views" />
+            <div class="showcase-caption"><strong>Live combat</strong> —person control and precision scope view with full HUD.</div>
+          </div>
+          <div class="showcase-card">
+            <img src="drone-swarm.jpeg" alt="Drone swarm over battlefield" />
+            <div class="showcase-caption"><strong>Aerial dominance</strong> — drones transform the battlefield into a three-dimensional fight.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="label">Under the hood</div>
+        <h2 class="display">Tech & design focus</h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <strong>Unity</strong>
+          <span>3D Engine</span>
+        </div>
+        <div class="tech-item">
+          <strong>Real-time Net</strong>
+          <span>Multiplayer rooms</span>
+        </div>
+        <div class="tech-item">
+          <strong>Vehicle Physics</strong>
+          <span>Tank controller</span>
+        </div>
+        <div class="tech-item">
+          <strong>Drone Systems</strong>
+          <span>Recon & strike</span>
+        </div>
+        <div class="tech-item">
+          <strong>Tactical HUD</strong>
+          <span>Clarity under pressure</span>
+        </div>
+        <div class="tech-item">
+          <strong>Scoped Aim</strong>
+          <span>Range markers</span>
+        </div>
+        <div class="tech-item">
+          <strong>Team Identity</strong>
+          <span>Blue / Red</span>
+        </div>
+        <div class="tech-item">
+          <strong>Atmosphere</strong>
+          <span>Day / Night / Smoke</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing" id="contact">
+    <div class="container">
+      <div class="label" style="margin-bottom: 1.2rem;">Leopard Battle</div>
+      <h2 class="display">Find the enemy.<br />Mark the target.<br />Launch the strike.</h2>
+      <p>Total battlefield domination — ground armor coordinated with aerial intelligence.</p>
+      <a href="Leopard%20battle(v1.0).zip" class="btn btn-primary" download="Leopard battle(v1.0).zip">Download Leopard Battle (v1.0)</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div>© 2026 Leopard Battle</div>
+      <div>Unity Tank + Drone Multiplayer</div>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById("nav");
+    window.addEventListener("scroll", () => {
+      nav.classList.toggle("scrolled", window.scrollY > 40);
+    });
+  </script>
+</body>
+</html>
